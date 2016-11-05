@@ -6,3 +6,19 @@
   padding-left: 20px;
   padding-right: 20px;
 }
+
+@media (min-width: 992px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: block;
+    background-color: #4ABDAC;
+  }
+}
+
+a {
+  size: 1.5em;
+}
