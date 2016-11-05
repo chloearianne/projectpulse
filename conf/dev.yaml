@@ -1,0 +1,6 @@
+# DB connection parameters
+db_user: ""
+db_name: ""
+db_host: "localhost"
+
+app_port: "8080"
