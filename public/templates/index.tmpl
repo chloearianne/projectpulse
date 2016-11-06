@@ -1,15 +1,6 @@
 {{ define "content" }}
-<div class="header">
-  <h3>Protest Pulse</h3>
-</div></br>
+<h1>Welcome to Protest Pulse, {{.Profile.given_name}}</h1>
 <div class="container">
-  <div class="jumbotron">
-    <h1>Welcome to Protest Pulse</h1>
-  </div>
-  <div class="logged-in-box auth0-box logged-in">
-    <h1 id="logo"><img src="/public/auth0_logo_final_blue_RGB.png" /></h1>
-    <img class="avatar" src="{{.picture}}"/>
-    <h2>Welcome {{.nickname}}</h2>
-  </div>
+  <img class="avatar" src="{{.Profile.picture}}"/>
 </div>
 {{ end }}

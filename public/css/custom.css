@@ -20,6 +20,11 @@ hr {
     border-top: 1px solid #ddd;
 }
 
+/* Profile */
+.avatar {
+    width: 100px;
+}
+
 /* Font Sizing */
 .font-1p5 {
     font-size: 1.5rem;

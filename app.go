@@ -84,12 +84,9 @@ func main() {
 	r := mux.NewRouter()
 	// Handle authentication.
 	r.HandleFunc("/callback", CallbackHandler)
-	r.Handle("/", negroni.New(
-		negroni.HandlerFunc(IsAuthenticated),
-		negroni.Wrap(http.HandlerFunc(IndexGET)),
-	))
-	// Handle app routes.
 	r.HandleFunc("/login", LoginGET)
+	// Handle app routes.
+	r.HandleFunc("/", IndexGET)
 	r.HandleFunc("/create", CreateGET)
 	r.HandleFunc("/events", EventsGET)
 
@@ -99,6 +96,7 @@ func main() {
 		negroni.NewStatic(http.Dir("public")),
 	)
 	n.UseHandler(handlers.LoggingHandler(os.Stdout, r))
+	n.UseFunc(IsAuthenticated)
 	n.Run(":" + os.Getenv("PORT"))
 }
 

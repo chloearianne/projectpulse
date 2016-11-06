@@ -22,9 +22,10 @@ func IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.HandlerFu
 
 	if _, ok := session.Values["profile"]; !ok {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
-	} else {
-		next(w, r)
+		return
 	}
+
+	next(w, r)
 }
 
 // CallbackHandler will be called by Auth0 once it redirects to the app.

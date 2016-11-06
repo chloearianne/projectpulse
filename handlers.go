@@ -4,8 +4,6 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-
-	"github.com/Sirupsen/logrus"
 )
 
 // IndexGET handles GET requests for '/'
@@ -16,15 +14,14 @@ func IndexGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logrus.Info(session.Values["profile"])
 	data := map[string]interface{}{
-		"Page": "Home",
-		// "Profile": session.Values["profile"],
+		"Page":    "Home",
+		"Profile": session.Values["profile"],
 	}
 	renderTemplate(w, r, "index.tmpl", data)
 }
 
-// LoginGET handles GET requests for '/create'
+// LoginGET handles GET requests for '/login'
 func LoginGET(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Page":              "Login",
