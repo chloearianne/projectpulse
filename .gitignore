@@ -1,1 +1,13 @@
+# Web App binary
 protestpulse
+
+# Negroni gin tool binary
+gin-bin
+
+# Archive file
+protestpulse.zip
+*DS_Store*
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
