@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"time"
 )
 
 // IndexGET handles GET requests for '/'
@@ -43,8 +44,28 @@ func CreateGET(w http.ResponseWriter, r *http.Request) {
 
 // EventsGET handles GET requests for '/events'
 func EventsGET(w http.ResponseWriter, r *http.Request) {
+	query := `SELECT
+							title, start_timestamp
+						FROM
+							event;`
+	rows, err := ppdb.Query(query)
+	if err != nil {
+		logrus.Error(err)
+	}
+	defer rows.Close()
+	eventsMap := map[string]time.Time
+	var title string
+	var startTS time.Time
+	for rows.Next() {
+		if err := rows.Scan(&title, &startTS); err != nil {
+			logrus.Error(err)
+		}
+		eventsMap[title] = startTS
+	}
+
 	data := map[string]interface{}{
 		"Page": "Events",
+		"Events": eventsMap,
 	}
 	renderTemplate(w, r, "events.tmpl", data)
 }
