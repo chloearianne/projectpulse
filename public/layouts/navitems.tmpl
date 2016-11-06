@@ -1,16 +1,16 @@
 {{ define "navitems" }}
-  <li class="{{ if eq .Page "Home" }}active{{ end }}">
-    <a href="/"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>&nbsp;Events</a>
-  </li>
-  <li class="{{ if eq .Page "About" }}active{{ end }}">
-    <a href="/about"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;About</a>
-  </li>
-  <li> <!-- Trigger for new event modal -->
-    <a href="#" data-toggle="modal" data-target="#new-q-modal">
-      <span class="glyphicon glyphicon-plus ga-new-poll" aria-hidden="true"></span>&nbsp;Add an event
-    </a>
-  </li>
-  <li class="{{ if eq .Page "Logout" }}active{{ end }}">
-    <a href="/auth/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</a>
-  </li>
+<li class="{{ if eq .Page "Home" }}active{{ end }}">
+  <a href="/"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>&nbsp;Home</a>
+</li>
+<li class="{{ if eq .Page "Events" }}active{{ end }}">
+  <a href="/events"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;Events</a>
+</li>
+<li> <!-- Trigger for new event modal -->
+  <a href="#" data-toggle="modal" data-target="#new-q-modal">
+    <span class="glyphicon glyphicon-plus ga-new-poll" aria-hidden="true"></span>&nbsp;Create Event
+  </a>
+</li>
+<li class="{{ if eq .Page "Logout" }}active{{ end }}">
+  <a href="/auth/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</a>
+</li>
 {{ end }}

@@ -15,4 +15,4 @@ go install ./...
 echo "Opening in default browser..." && sleep 1 && open http://localhost:${PORT} &
 
 echo "Starting server on port ${PORT}"
-go build && ./pp -env dev
+go build && ./protestpulse -env dev

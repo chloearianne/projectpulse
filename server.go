@@ -30,10 +30,6 @@ type AppConfig struct {
 	AppPort string `yaml:"app_port"`
 }
 
-// AppContext TODO
-type AppContext struct {
-}
-
 func main() {
 	configEnv := flag.String("env", "dev", "The environment to run as i.e. which config file to use")
 	flag.Parse()
@@ -69,6 +65,8 @@ func main() {
 
 	// Set up routes
 	r := mux.NewRouter()
+	r.HandleFunc("/create", CreateGET)
+	r.HandleFunc("/events", EventsGET)
 	r.HandleFunc("/", IndexGET)
 
 	// Set up middleware stack
