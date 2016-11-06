@@ -1,6 +1,6 @@
 # DB connection parameters
-db_user: ""
-db_name: ""
+db_user: "ppmaster"
+db_name: "ppdb"
 db_host: "localhost"
 
 cookie_key: "f9ca9a07254e7222b3bd4c4c53e294495010a32a36a5f10af11a5d95e6a57173cff5cc77183e96c3e355acbfa8c40e59ec3e4f881a532ccbf15b6afd282cf60b"

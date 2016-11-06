@@ -9,7 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
+	"database/sql"
+	"errors"
 	"gopkg.in/yaml.v2"
 
 	"github.com/Sirupsen/logrus"
@@ -18,10 +19,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 var templateMap = make(map[string]*template.Template)
 var cookieStore *sessions.CookieStore
+var ppdb *sql.DB
+var dateTimeFormat = "2006-01-02 15:04"
 
 // AppConfig is a container for all app configuration parameters
 // that are to be extracted from the YAML config file.
@@ -54,6 +58,21 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	dbInfo := fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable", c.DBUser, c.DBName, c.DBHost)
+	if c.DBPassword != "" {
+		dbInfo = fmt.Sprintf("password=%s %s", c.DBPassword, dbInfo)
+	}
+	ppdb, err = sql.Open("postgres", dbInfo)
+	if err != nil {
+		logrus.Fatal(err.Error())
+	}
+	ppdb.SetMaxIdleConns(100)
+	err = ppdb.Ping()
+	if err != nil {
+		logrus.Fatal(err.Error())
+	}
+	defer ppdb.Close()
+
 	cookieStore = sessions.NewCookieStore([]byte(c.CookieKey))
 	gob.Register(map[string]interface{}{})
 
@@ -71,15 +90,6 @@ func main() {
 		templateMap[filepath.Base(tmpl)] = template.Must(template.ParseFiles(files...))
 	}
 
-	// // Set up the environment-specific database handle
-	// dbh := db.New(db.Params{
-	// 	User:     c.DBUser,
-	// 	Password: c.DBPassword,
-	// 	DBName:   c.DBName,
-	// 	Host:     c.DBHost,
-	// })
-	// defer dbh.Conn.Close()
-
 	// Set up routes
 	r := mux.NewRouter()
 	// Handle authentication.
@@ -87,7 +97,8 @@ func main() {
 	r.HandleFunc("/login", LoginGET)
 	// Handle app routes.
 	r.HandleFunc("/", IndexGET)
-	r.HandleFunc("/create", CreateGET)
+	r.HandleFunc("/create", CreateGET).Methods("GET")
+	r.HandleFunc("/create", CreatePOST).Methods("POST")
 	r.HandleFunc("/events", EventsGET)
 
 	// Set up middleware stack
@@ -117,4 +128,23 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, filename string, dat
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func GetUserID(r *http.Request) (int, error) {
+	session, err := cookieStore.Get(r, "auth-session")
+	if err != nil {
+		return 0, err
+	}
+	var userID int
+	profile, ok := session.Values["profile"].(map[string]interface{})
+	if !ok {
+		return 0, errors.New("no profile data")
+	}
+
+	query := fmt.Sprintf("SELECT id FROM account WHERE email = '%s'", profile["email"])
+	err = ppdb.QueryRow(query).Scan(&userID)
+	if err != nil {
+		return 0, err
+	}
+	return userID, nil
 }

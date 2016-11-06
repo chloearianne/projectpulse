@@ -14,11 +14,11 @@ GRANT ALL PRIVILEGES ON DATABASE ppdb TO ppmaster;
 \c ppdb ppmaster;
 
 CREATE TABLE account (
-    id                     SERIAL PRIMARY KEY,
-    email                  varchar NOT NULL,
-    password               varchar NOT NULL,
-    first_name             varchar NOT NULL,
-    last_name              varchar NOT NULL,
+    id SERIAL PRIMARY KEY,
+    email varchar NOT NULL,
+    password varchar NOT NULL,
+    first_name varchar NOT NULL,
+    last_name varchar NOT NULL,
     CONSTRAINT uniq_voter_email UNIQUE(email)
 );
 

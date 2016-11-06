@@ -14,6 +14,7 @@ go install ./...
 # Start database and run schema
 pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start
 psql -h localhost -d postgres -f db/schema.sql
+psql -U ppmaster -h localhost -d ppdb -f db/test_data.sql
 
 # Timed start on separate thread
 echo "Opening in default browser..." && sleep 1 && open http://localhost:${PORT} &
