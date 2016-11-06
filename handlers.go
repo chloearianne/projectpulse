@@ -6,7 +6,6 @@ import (
 	"os"
 	"fmt"
 	"time"
-
 	"github.com/Sirupsen/logrus"
 )
 
@@ -107,7 +106,7 @@ func EventsGET(w http.ResponseWriter, r *http.Request) {
 		logrus.Error(err)
 	}
 	defer rows.Close()
-	eventsMap := map[string]time.Time
+	eventsMap := map[string]time.Time{}
 	var title string
 	var startTS time.Time
 	for rows.Next() {
