@@ -4,14 +4,10 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-<<<<<<< HEAD
-	"time"
-=======
 	"fmt"
 	"time"
 
 	"github.com/Sirupsen/logrus"
->>>>>>> f84ec9801b0a8c390782b57e66d04db1e2ae0e9e
 )
 
 // IndexGET handles GET requests for '/'
@@ -105,10 +101,7 @@ func CreatePOST(w http.ResponseWriter, r *http.Request) {
 
 // EventsGET handles GET requests for '/events'
 func EventsGET(w http.ResponseWriter, r *http.Request) {
-	query := `SELECT
-							title, start_timestamp
-						FROM
-							event;`
+	query := `SELECT title, start_timestamp FROM event;`
 	rows, err := ppdb.Query(query)
 	if err != nil {
 		logrus.Error(err)
