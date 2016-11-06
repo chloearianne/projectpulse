@@ -30,7 +30,6 @@ func LoginGET(w http.ResponseWriter, r *http.Request) {
 		"Auth0Domain":       os.Getenv("AUTH0_DOMAIN"),
 		"Auth0CallbackURL":  template.URL(os.Getenv("AUTH0_CALLBACK_URL")),
 	}
-
 	renderTemplate(w, r, "login.tmpl", data)
 }
 
