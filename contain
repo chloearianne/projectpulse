@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker build -t pp .
+docker run -it --rm --env-file .env -p 8080:8080 pp
