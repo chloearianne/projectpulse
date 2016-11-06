@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 
@@ -22,9 +23,9 @@ func IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.HandlerFu
 	}
 
 	if _, ok := session.Values["profile"]; !ok {
-		// Only redirect if not currently requesting the /login route
-		// to avoid an endless loop.
-		if r.URL.Path != "/login" {
+		// Only redirect if not currently requesting the /login route or any
+		// static assets to avoid an endless loop or blocking static resources.
+		if r.URL.Path != "/login" && !strings.Contains(r.URL.Path, "/static/") {
 			logrus.WithField("requestURL", r.URL.Path).Info("Redirecting to /login")
 			http.Redirect(w, r, fmt.Sprintf("/login?redir=%s", r.URL.Path), http.StatusSeeOther)
 			return
