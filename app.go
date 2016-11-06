@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
@@ -68,7 +69,8 @@ func main() {
 	}
 	for _, tmpl := range templates {
 		files := append(layouts, tmpl)
-		templateMap[filepath.Base(tmpl)] = template.Must(template.ParseFiles(files...))
+		templateKey := strings.TrimRight(filepath.Base(tmpl), ".tmpl")
+		templateMap[templateKey] = template.Must(template.ParseFiles(files...))
 	}
 
 	// // Set up the environment-specific database handle
@@ -105,7 +107,7 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, filename string, dat
 	// Ensure the template exists in the map.
 	tmpl, ok := templateMap[filename]
 	if !ok {
-		err := fmt.Errorf("The template %s does not exist.", filename)
+		err := fmt.Errorf("The template %q does not exist.", filename)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
