@@ -31,9 +31,8 @@
       var AUTH0_CALLBACK_URL = '{{.Auth0CallbackURL}}';
     </script>
     <script type="application/javascript" src="/static/js/authlock.js"></script>
-    {{ if .KeepNav }}
-      {{ template "navbar" . }}
-    {{ end }}
+
+    {{ template "navbar" . }}
 
     <header class="navbar navbar-default navbar-fixed-top blue-bg fixed no-border">
       <div class="container text-center">

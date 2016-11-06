@@ -29,7 +29,6 @@ func IndexGET(w http.ResponseWriter, r *http.Request) {
 func LoginGET(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Page":              "Login",
-		"KeepNav":           false,
 		"Auth0ClientId":     os.Getenv("AUTH0_CLIENT_ID"),
 		"Auth0ClientSecret": os.Getenv("AUTH0_CLIENT_SECRET"),
 		"Auth0Domain":       os.Getenv("AUTH0_DOMAIN"),
