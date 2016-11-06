@@ -1,3 +1,10 @@
+@keyframes fadein {
+  0% { opacity: 0; }
+  25% { opacity: 0; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 .jumbotron {
   text-align: center;
 }
@@ -27,9 +34,16 @@
 
 .event {
   text-align: center;
-  margin: 5px;
+  margin: 15px;
   background-color: #d8d8d8;
   border-radius: 5px;
   padding-top: 10px;
   padding-bottom: 10px;
+  box-shadow: 5px 5px 2.5px #888888;
+  animation: fadein 1s;
+}
+
+.event:hover {
+  background-color: #acacac;
+  box-shadow: 0px 0px 0px;
 }
