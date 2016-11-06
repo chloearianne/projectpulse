@@ -107,14 +107,15 @@ func EventsGET(w http.ResponseWriter, r *http.Request) {
 		logrus.Error(err)
 	}
 	defer rows.Close()
-	eventsMap := map[string]time.Time
+	eventsMap := map[string]string{}
+
 	var title string
 	var startTS time.Time
 	for rows.Next() {
 		if err := rows.Scan(&title, &startTS); err != nil {
 			logrus.Error(err)
 		}
-		eventsMap[title] = startTS
+		eventsMap[title] = startTS.Format(niceFormat)
 	}
 
 	data := map[string]interface{}{
