@@ -95,7 +95,7 @@ func CreatePOST(w http.ResponseWriter, r *http.Request) {
 	} else {
 		logrus.Info("Successfully created new event")
 	}
-	//http.Redirect(w, r, "/", http.StatusRedirect)
+	EventsGET(w, r)
 	return
 }
 
