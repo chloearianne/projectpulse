@@ -3,7 +3,6 @@ package main
 import (
 	_ "crypto/sha512"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -25,9 +24,11 @@ func IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.HandlerFu
 	if _, ok := session.Values["profile"]; !ok {
 		// Only redirect if not currently requesting the /login route or any
 		// static assets to avoid an endless loop or blocking static resources.
-		if r.URL.Path != "/login" && !strings.Contains(r.URL.Path, "/static/") {
+		if r.URL.Path != "/login" && r.URL.Path != "/callback" && !strings.Contains(r.URL.Path, "/static/") {
 			logrus.WithField("requestURL", r.URL.Path).Info("Redirecting to /login")
-			http.Redirect(w, r, fmt.Sprintf("/login?redir=%s", r.URL.Path), http.StatusSeeOther)
+			// FIXME - last thing seen is /callback so we need to pass the path forward to deep link
+			// http.Redirect(w, r, fmt.Sprintf("/login?redir=%s", r.URL.Path), http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 	}
