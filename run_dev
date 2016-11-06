@@ -11,6 +11,10 @@ cd "$(dirname "${BASH_SOURCE}")" && echo "Working from ${PWD}"
 echo "Installing vendored dependencies..."
 go install ./...
 
+# Start database and run schema
+pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start
+psql -h localhost -d postgres -f db/schema.sql
+
 # Timed start on separate thread
 echo "Opening in default browser..." && sleep 1 && open http://localhost:${PORT} &
 
