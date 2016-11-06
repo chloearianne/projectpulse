@@ -7,10 +7,10 @@
         <h4 class="modal-title" style="text-align:center">Create a new event</h4>
       </div>
       <div class="modal-body">
-        <form>
+        <form onsubmit="renderDate()" name="create" action="/create" method="post">
           <div class="form-group">
             <label for="title">Event Name:</label>
-            <input type="text" class="form-control" id="title" required>
+            <input type="text" class="form-control" name="title" required>
           </div>
           <div class="form-group">
             <label for="event_Type">Type:</label>
@@ -29,7 +29,7 @@
               <option value="2">Environment</option>
               <option value="3">Gender Equality</option>
               <option value="4">Racial Injustice</option>
-              <option value="5">LGBTW Rights</option>
+              <option value="5">LGBTQ Rights</option>
               <option value="6">Indigenous Rights</option>
               <option value="7">Animal Rights</option>
               <option value="8">Other</option>
@@ -37,27 +37,27 @@
           </div>
           <div class="form-group">
             <label for="description">Event Description:</label>
-            <input type="text" class="form-control" id="description">
+            <input type="text" class="form-control" name="description">
           </div>
           <div class="form-group">
             <label for="location">Location:</label>
-            <input type="text" class="form-control" id="location" required>
+            <input type="text" class="form-control" name="location" required>
           </div>
           <div class="form-group">
             <label for="start_date">Start Date:</label>
-            <input type="date" class="form-control" id="start_date" required>
+            <input type="date" class="form-control" name="start_date" required>
           </div>
           <div class="form-group">
             <label for="start_time">Start Time:</label>
-            <input type="time" class="form-control" id="start_time">
+            <input type="time" class="form-control" name="start_time" required>
           </div>
           <div class="form-group">
             <label for="end_date">End Date:</label>
-            <input type="date" class="form-control" id="end_date" required>
+            <input type="date" class="form-control" name="end_date" required>
           </div>
           <div class="form-group">
             <label for="end_time">End Time:</label>
-            <input type="date" class="form-control" id="end_time">
+            <input type="time" class="form-control" name="end_time" required>
           </div>
           <button type="submit" class="btn btn-default">Create Event</button>
         </form>
