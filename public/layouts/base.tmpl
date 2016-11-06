@@ -9,19 +9,23 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="/static/img/favicon.ico">
+    <link rel="icon" href="/img/favicon.ico">
     <title>{{ .Page }}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/stylesheets/app.scss">
-    <link href="/static/css/sweetalert.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/jasny.min.css">
+    <link rel="stylesheet" href="/css/sweetalert.css">
+    <link rel="stylesheet" href="/css/app.scss">
+    <link rel="stylesheet" href="/css/nav.css">
+    <link rel="stylesheet" href="/css/custom.css">
   </head>
 
   <body>
-    <nav id="menu" class="navmenu navmenu-default navmenu-fixed-left offcanvas-xs" role="navigation">
-      <ul class="nav navmenu-nav header-offset">
-        {{ template "navitems" . }}
-      </ul>
-    </nav>
+    <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="application/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="application/javascript" src="/js/jasny.min.js"></script>
+    <script type="application/javascript" src="/js/sweetalert.min.js"></script>
+
+    {{ template "navbar" . }}
 
     <header class="navbar navbar-default navbar-fixed-top blue-bg fixed no-border">
       <div class="container text-center">
@@ -32,18 +36,15 @@
           </button>
         </div>
 
-        <a href="/" title="Home"><img id="navbar-logo" src="/static/img/navbar-logo.png"></a>
+        <a href="/" title="Home"><img id="navbar-logo" src="/img/navbar-logo.png"></a>
 
       </div>
     </header>
 
     <main id="main-content" class="container header-offset">
+      {{ template "eventmodal" . }}
       {{ template "content" . }}
     </main>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script type="application/javascript" src="/static/js/sweetalert.min.js"></script>
   </body>
 </html>
 {{ end }}

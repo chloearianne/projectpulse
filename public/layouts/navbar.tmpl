@@ -1,0 +1,17 @@
+{{ define "navbar" }}
+<nav id="menu" class="navmenu navmenu-default navmenu-fixed-left offcanvas-xs" role="navigation">
+  <ul class="nav navmenu-nav header-offset">
+    <li class="{{ if eq .Page "Events" }}active{{ end }}">
+      <a href="/events"><span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>&nbsp;Events</a>
+    </li>
+    <li> <!-- Trigger for new event modal -->
+      <a href="#" data-toggle="modal" data-target="#eventModal">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Create Event
+      </a>
+    </li>
+    <li class="{{ if eq .Page "Logout" }}active{{ end }}">
+      <a href="#"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</a>
+    </li>
+  </ul>
+</nav>
+{{ end }}

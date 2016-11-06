@@ -1,0 +1,59 @@
+/* Header bar styling */
+#hamburger-wrapper {
+    display:inline-block;
+    float:left;
+    width:65px;
+    height:50px;
+}
+
+#nav-toggle-btn {
+    width:100%;
+    height:100%;
+    font-size: 2rem;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    border: none;
+    background-color: #00bfee;
+}
+
+/* Navbar list styling */
+#menu {
+	border-right: solid 1px #ccc;
+    background-color: #e9eaed;
+}
+#menu, #menu a {
+    color:#888;
+	text-shadow:0 0 2px #e9eaed;
+}
+#menu .nav li.active>a,
+#menu .nav li.active>a:focus,
+#menu .nav li.active>a:hover {
+    color: #00bfee;
+    background-color: #fff;
+    font-weight: bold;
+	text-shadow:0 0 2px #fff;
+}
+#menu .nav li>a:hover {
+    color: #575757;
+    background-color: #fff;
+	text-shadow:0 0 2px #fff;
+}
+
+/* Override Jasny navbar defaut width */
+.navmenu {
+    /* NOTE: this must match #main-content @media padding below */
+    width: 250px;
+}
+/* Jasny responsive navbar */
+@media (min-width: 768px) {
+    /* NOTE: this must match .navmenu width above */
+    #main-content {
+        padding: 0 0 0 250px;
+    }
+}
+@media (min-width: 1700px) {
+    #main-content {
+        padding: 0;
+    }
+}
