@@ -93,10 +93,10 @@ func main() {
 	// Set up middleware stack
 	n := negroni.New(
 		negroni.NewRecovery(),
+		negroni.HandlerFunc(IsAuthenticated),
 		negroni.NewStatic(http.Dir("public")),
 	)
 	n.UseHandler(handlers.LoggingHandler(os.Stdout, r))
-	n.UseFunc(IsAuthenticated)
 	n.Run(":" + os.Getenv("PORT"))
 }
 
@@ -113,7 +113,7 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, filename string, dat
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err := tmpl.ExecuteTemplate(w, "base", data)
 	if err != nil {
-		logrus.WithError(err)
+		logrus.WithError(err).Error("Failed to ExecuteTemplate")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

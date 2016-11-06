@@ -3,6 +3,7 @@ package main
 import (
 	_ "crypto/sha512"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -21,8 +22,13 @@ func IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.HandlerFu
 	}
 
 	if _, ok := session.Values["profile"]; !ok {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
+		// Only redirect if not currently requesting the /login route
+		// to avoid an endless loop.
+		if r.URL.Path != "/login" {
+			logrus.WithField("requestURL", r.URL.Path).Info("Redirecting to /login")
+			http.Redirect(w, r, fmt.Sprintf("/login?redir=%s", r.URL.Path), http.StatusSeeOther)
+			return
+		}
 	}
 
 	next(w, r)
@@ -82,7 +88,6 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["profile"] = profile
 	err = session.Save(r, w)
 	if err != nil {
-		logrus.Error("FUCK")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
