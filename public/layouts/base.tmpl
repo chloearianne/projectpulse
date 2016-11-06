@@ -9,28 +9,28 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="/img/favicon.ico">
+    <link rel="icon" href="/static/img/favicon.ico">
     <title>{{ .Page }}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/jasny.min.css">
-    <link rel="stylesheet" href="/css/sweetalert.css">
-    <link rel="stylesheet" href="/css/app.scss">
-    <link rel="stylesheet" href="/css/nav.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/static/css/jasny.min.css">
+    <link rel="stylesheet" href="/static/css/sweetalert.css">
+    <link rel="stylesheet" href="/static/css/nav.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <link rel="stylesheet" href="/static/css/app.css">
   </head>
 
   <body>
     <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script type="application/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdn.auth0.com/js/lock/10.4/lock.min.js"></script>
-    <script type="application/javascript" src="/js/jasny.min.js"></script>
-    <script type="application/javascript" src="/js/sweetalert.min.js"></script>
+    <script type="application/javascript" src="/static/js/jasny.min.js"></script>
+    <script type="application/javascript" src="/static/js/sweetalert.min.js"></script>
     <script>
       var AUTH0_CLIENT_ID = '{{.Auth0ClientId}}';
       var AUTH0_DOMAIN = '{{.Auth0Domain}}';
       var AUTH0_CALLBACK_URL = '{{.Auth0CallbackURL}}';
     </script>
-    <script type="application/javascript" src="/js/authlock.js"></script>
+    <script type="application/javascript" src="/static/js/authlock.js"></script>
 
     {{ template "navbar" . }}
 
@@ -41,7 +41,7 @@
             <span class="glyphicon glyphicon-menu-hamburger white blue-bg" aria-hidden="true"></span>
           </button>
         </div>
-        <a href="/" title="Home"><img id="navbar-logo" src="/img/navbar-logo.png"></a>
+        <a href="/" title="Home"><img id="navbar-logo" src="/static/img/navbar-logo.png"></a>
       </div>
     </header>
 

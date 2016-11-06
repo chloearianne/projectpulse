@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 
@@ -21,8 +22,15 @@ func IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.HandlerFu
 	}
 
 	if _, ok := session.Values["profile"]; !ok {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
+		// Only redirect if not currently requesting the /login route or any
+		// static assets to avoid an endless loop or blocking static resources.
+		if r.URL.Path != "/login" && r.URL.Path != "/callback" && !strings.Contains(r.URL.Path, "/static/") {
+			logrus.WithField("requestURL", r.URL.Path).Info("Redirecting to /login")
+			// FIXME - last thing seen is /callback so we need to pass the path forward to deep link
+			// http.Redirect(w, r, fmt.Sprintf("/login?redir=%s", r.URL.Path), http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
 	}
 
 	next(w, r)
@@ -82,7 +90,6 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["profile"] = profile
 	err = session.Save(r, w)
 	if err != nil {
-		logrus.Error("FUCK")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
