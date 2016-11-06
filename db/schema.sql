@@ -50,18 +50,16 @@ INSERT INTO event_topic (name) VALUES
     ('other');
 
 CREATE TABLE event (
-    id          SERIAL PRIMARY KEY,
-    creator_id  integer REFERENCES account ON DELETE CASCADE,
-    title       varchar,
-    start_date  date,
-    end_date    date,
-    start_time  time,
-    end_time    time,
-    description text,
-    event_type        integer REFERENCES event_type ON DELETE CASCADE,
-    event_topic       integer REFERENCES event_topic ON DELETE CASCADE,
-    location    varchar,
-    stars       integer
+    id               SERIAL PRIMARY KEY,
+    creator_id       integer REFERENCES account ON DELETE CASCADE,
+    title            varchar,
+    start_timestamp  timestamp,
+    end_timestamp    timestamp,
+    description      text,
+    event_type       integer REFERENCES event_type ON DELETE CASCADE,
+    event_topic      integer REFERENCES event_topic ON DELETE CASCADE,
+    location         varchar,
+    stars            integer
 );
 
 CREATE TABLE account_event_topics (
