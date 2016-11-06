@@ -51,6 +51,18 @@
 			"revisionTime": "2015-09-07T01:02:28Z"
 		},
 		{
+			"checksumSHA1": "Ncf0ItwKAuTF5eNkGW+Pk78pwzM=",
+			"path": "github.com/lib/pq",
+			"revision": "b269bd035a727d6c1081f76e7a239a1b00674c40",
+			"revisionTime": "2015-08-05T09:05:26Z"
+		},
+		{
+			"checksumSHA1": "xppHi82MLqVx1eyQmbhTesAEjx8=",
+			"path": "github.com/lib/pq/oid",
+			"revision": "b269bd035a727d6c1081f76e7a239a1b00674c40",
+			"revisionTime": "2015-08-05T09:05:26Z"
+		},
+		{
 			"checksumSHA1": "5ARrN3Zq+E9zazFb/N+b08Serys=",
 			"path": "golang.org/x/net/context",
 			"revision": "c92cdcb05f66ce5b61460e23498d2dc5fcf69aaf",
