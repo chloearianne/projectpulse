@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 if [ -z "$PORT" ]; then
+    export PORT=8080
     echo "PORT env var required; defaulting to $PORT"
-    PORT=8080
 fi
 
 # Change to pop directory before running
@@ -15,4 +15,4 @@ go install ./...
 echo "Opening in default browser..." && sleep 1 && open http://localhost:${PORT} &
 
 echo "Starting server on port ${PORT}"
-go build && ./protestpulse -env dev
+go build && ./protestpulse
