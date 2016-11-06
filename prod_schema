@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Set connection parameters
+# prod_postgres="psql -h aa19g7a1abv1rvh.cerpr1n3hh8m.us-east-1.rds.amazonaws.com -p 5432 -U ppmaster -d postgres"
+prod_pp="psql -h aa19g7a1abv1rvh.cerpr1n3hh8m.us-east-1.rds.amazonaws.com -p 5432 -U ppmaster -d ppmaster"
+
+read -sp "Production DB Password: " password
+# PGPASSWORD=${password} ${prod_postgres} -f ${sql_path}/kill_sessions.sql
+PGPASSWORD=${password} ${prod_pp} -f ./db/schema.sql
