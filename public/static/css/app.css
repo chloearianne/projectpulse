@@ -40,7 +40,7 @@
   padding-top: 10px;
   padding-bottom: 10px;
   box-shadow: 5px 5px 2.5px #888888;
-  animation: fadein 1s;
+  animation: fadein .25s;
 }
 
 .event:hover {
