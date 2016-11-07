@@ -1,0 +1,17 @@
+{{ define "content" }}
+<div class="header">
+  <h2>{{.Title}}</h2>
+</div><hr />
+<div class="row">
+  <div class="col-md-8 col-xs-12 main-content">
+    <div class="container">
+      <b>Start Date: </b> {{.Start}} <br>
+      <b>End Date: </b> {{.End}} <br>
+      <b>Type: </b> {{.Type}} <br>
+      <b>Topic: </b>{{.Topic}} <br>
+      <b>Location: </b>{{.Location}} <br>
+      <b>About this event: </b>{{.Desc}} <br>
+    </div>
+  </div>
+</div>
+{{ end }}

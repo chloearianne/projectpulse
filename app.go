@@ -102,6 +102,7 @@ func main() {
 	r.HandleFunc("/create", CreateGET).Methods("GET")
 	r.HandleFunc("/create", CreatePOST).Methods("POST")
 	r.HandleFunc("/events", EventsGET)
+	r.HandleFunc("/event/{id}", EventGET).Methods("GET")
 
 	// Set up middleware stack
 	n := negroni.New(
