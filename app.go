@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -9,8 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"database/sql"
-	"errors"
+
 	"gopkg.in/yaml.v2"
 
 	"github.com/Sirupsen/logrus"
