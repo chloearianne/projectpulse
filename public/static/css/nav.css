@@ -20,11 +20,10 @@
 /* Navbar list styling */
 #menu {
 	border-right: solid 1px #ccc;
-    background-color: #e9eaed;
+    background-color: #3f4652;
 }
 #menu, #menu a {
-    color:#888;
-	text-shadow:0 0 2px #e9eaed;
+    color: white;
 }
 #menu .nav li.active>a,
 #menu .nav li.active>a:focus,
