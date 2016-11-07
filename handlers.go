@@ -50,8 +50,19 @@ func CreatePOST(w http.ResponseWriter, r *http.Request) {
 	logrus.Info("Starting call")
 	id, err := GetUserID(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		//FIXME - this should go elsewhere but trying to get stuff working
+		session, err := cookieStore.Get(r, "auth-session")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		profile, ok := session.Values["profile"].(map[string]interface{})
+		if !ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		query := fmt.Sprintf("INSERT INTO account (email, password, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING id")
+		ppdb.QueryRow(query, profile["email"], "dummy", profile["given_name"], profile["family_name"]).Scan(&id)
 	}
 	logrus.Info(id)
 
@@ -107,14 +118,14 @@ func EventsGET(w http.ResponseWriter, r *http.Request) {
 		logrus.Error(err)
 	}
 	defer rows.Close()
-	eventsMap := map[string]time.Time{}
+	eventsMap := map[string]string{}
 	var title string
 	var startTS time.Time
 	for rows.Next() {
 		if err := rows.Scan(&title, &startTS); err != nil {
 			logrus.Error(err)
 		}
-		eventsMap[title] = startTS
+		eventsMap[title] = startTS.Format(niceFormat)
 	}
 
 	data := map[string]interface{}{

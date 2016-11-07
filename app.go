@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -9,8 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"database/sql"
-	"errors"
+
 	"gopkg.in/yaml.v2"
 
 	"github.com/Sirupsen/logrus"
@@ -26,6 +27,7 @@ var templateMap = make(map[string]*template.Template)
 var cookieStore *sessions.CookieStore
 var ppdb *sql.DB
 var dateTimeFormat = "2006-01-02 15:04"
+var niceFormat = "Jan 02, 2006"
 
 // AppConfig is a container for all app configuration parameters
 // that are to be extracted from the YAML config file.
