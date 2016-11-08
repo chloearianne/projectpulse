@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/gob"
-	"errors"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -129,24 +128,4 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, filename string, dat
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-}
-
-// GetUserID returns the ID for a given user.
-func GetUserID(r *http.Request) (int, error) {
-	session, err := cookieStore.Get(r, "auth-session")
-	if err != nil {
-		return 0, err
-	}
-	var userID int
-	profile, ok := session.Values["profile"].(map[string]interface{})
-	if !ok {
-		return 0, errors.New("no profile data")
-	}
-
-	query := fmt.Sprintf("SELECT id FROM account WHERE email = '%s'", profile["email"])
-	err = ppdb.QueryRow(query).Scan(&userID)
-	if err != nil {
-		return 0, err
-	}
-	return userID, nil
 }

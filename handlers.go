@@ -8,12 +8,13 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/chloearianne/protestpulse/db"
 	"github.com/gorilla/mux"
 )
 
 var humanDateFormat = "Jan 02, 2006"
 
-// IndexGET handles GET requests for '/'
+// IndexGET handles GET requests for '/'.
 func IndexGET(w http.ResponseWriter, r *http.Request) {
 	session, err := cookieStore.Get(r, "auth-session")
 	if err != nil {
@@ -28,7 +29,7 @@ func IndexGET(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "index.tmpl", data)
 }
 
-// LoginGET handles GET requests for '/login'
+// LoginGET handles GET requests for '/login'.
 func LoginGET(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Page":              "Login",
@@ -48,26 +49,22 @@ func CreateGET(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "create.tmpl", data)
 }
 
-// CreatePOST handles POST requests for '/create'
+// CreatePOST handles POST requests for '/create'.
 func CreatePOST(w http.ResponseWriter, r *http.Request) {
-	logrus.Info("Starting call")
-	id, err := GetUserID(r)
+	session, err := cookieStore.Get(r, "auth-session")
 	if err != nil {
-		//FIXME - this should go elsewhere but trying to get stuff working
-		session, err := cookieStore.Get(r, "auth-session")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		profile, ok := session.Values["profile"].(map[string]interface{})
-		if !ok {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		query := fmt.Sprintf("INSERT INTO account (email, password, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING id")
-		ppdb.QueryRow(query, profile["email"], "dummy", profile["given_name"], profile["family_name"]).Scan(&id)
+		return 0, err
 	}
-	logrus.Info(id)
+	profile, ok := session.Values["profile"].(map[string]interface{})
+	if !ok {
+		return 0, fmt.Errorf("no profile data")
+	}
+	userID, err := db.GetUserID(profile["email"])
+	if err != nil {
+		logrus.WithErr(err).Error("User ID not found")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	r.ParseForm()
 	title := r.Form["title"][0]
@@ -79,7 +76,6 @@ func CreatePOST(w http.ResponseWriter, r *http.Request) {
 	endDate := r.Form["end_date"][0]
 	startTime := r.Form["start_time"][0]
 	endTime := r.Form["end_time"][0]
-	logrus.Info(r.Form)
 
 	var dateTimeFormat = "2006-01-02 15:04"
 	startTimeDate, err := time.Parse(dateTimeFormat, fmt.Sprintf("%s %s", startDate, startTime))
@@ -91,7 +87,6 @@ func CreatePOST(w http.ResponseWriter, r *http.Request) {
 		logrus.WithError(err).Error("Failed to parse date time")
 	}
 
-	// TODO verify that answerA does not equal answerB
 	query := `INSERT INTO event (
 		        creator_id, title, start_timestamp, end_timestamp,
 		        description, event_topic, event_type, location,
@@ -102,7 +97,7 @@ func CreatePOST(w http.ResponseWriter, r *http.Request) {
 			  	$5, $6, $7, $8,
 			  	$9
 			  )`
-	_, err = ppdb.Exec(query, id, title, startTimeDate, endTimeDate,
+	_, err = ppdb.Exec(query, userID, title, startTimeDate, endTimeDate,
 		description, eventTopic, eventType, location,
 		0)
 	if err != nil {
@@ -121,27 +116,27 @@ type Event struct {
 	Timestamp string
 }
 
-// EventsGET handles GET requests for '/events'
+// EventsGET handles GET requests for '/events'.
 func EventsGET(w http.ResponseWriter, r *http.Request) {
-	query := `SELECT title, start_timestamp, id FROM event;`
+	query := `SELECT id, title, start_timestamp FROM event`
 	rows, err := ppdb.Query(query)
 	if err != nil {
 		logrus.Error(err)
 	}
 	defer rows.Close()
-	eventsMap := []Event{}
 
-	var title string
+	eventsMap := []Event{}
 	var id int
+	var title string
 	var startTS time.Time
 	for rows.Next() {
-		if err := rows.Scan(&title, &startTS, &id); err != nil {
+		if err := rows.Scan(&id, &title, &startTS); err != nil {
 			logrus.Error(err)
 		}
 		eventsMap = append(eventsMap, Event{
+			ID:        id,
 			Title:     title,
 			Timestamp: startTS.Format(humanDateFormat),
-			ID:        id,
 		})
 	}
 
@@ -152,28 +147,35 @@ func EventsGET(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "events.tmpl", data)
 }
 
-// EventGET handles GET requests for /events/{id}.
+// EventGET handles GET requests for a single event at '/events/{id}'.
 func EventGET(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
 	var title, desc, location string
-	var start, end time.Time
+	var startTime, endTime time.Time
 	var eventType, topic int
 
-	query := fmt.Sprintf(`SELECT title, start_timestamp, end_timestamp, description, event_type, event_topic, location FROM event WHERE id = %s;`, id)
-	err := ppdb.QueryRow(query).Scan(&title, &start, &end, &desc, &eventType, &topic, &location)
+	query := `SELECT
+				title, start_timestamp, end_timestamp,
+				description, event_type, event_topic,
+				location
+			FROM event
+			WHERE id = $1`
+	err := ppdb.QueryRow(query, id).Scan(
+		&title, &start, &end,
+		&desc, &eventType, &topic,
+		&location,
+	)
 	if err != nil {
 		logrus.Error(err)
 	}
-	startTime := start.Format(humanDateFormat)
-	endTime := end.Format(humanDateFormat)
 
 	data := map[string]interface{}{
 		"Page":     "Events",
 		"Title":    title,
-		"Start":    startTime,
-		"End":      endTime,
+		"Start":    startTime.Format(humanDateFormat),
+		"End":      endTime.Format(humanDateFormat),
 		"Desc":     desc,
 		"Type":     eventType,
 		"Topic":    topic,
