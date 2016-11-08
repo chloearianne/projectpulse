@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/gob"
 	"fmt"
 	"html/template"
@@ -14,6 +13,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/chloearianne/protestpulse/db"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -24,82 +24,57 @@ import (
 
 var templateMap = make(map[string]*template.Template)
 var cookieStore *sessions.CookieStore
-var ppdb *sql.DB
+
+// var ppdb *sql.DB
+
+type App struct {
+	db *db.Database
+}
 
 // AppConfig is a container for all app configuration parameters
 // that are to be extracted from the YAML config file.
 type AppConfig struct {
-	// DB config
-	DBUser     string `yaml:"db_user"`
-	DBPassword string `yaml:"db_password"`
-	DBName     string `yaml:"db_name"`
-	DBHost     string `yaml:"db_host"`
-
-	// Security config
-	CookieKey string `yaml:"cookie_key"`
+	cookieKey string `yaml:"cookie_key"`
+	dbConfig  *db.Config
 }
 
 func main() {
+	// Load the .env file for environment variables
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	configFile := fmt.Sprintf("conf/%s.yaml", os.Getenv("ENV"))
-	if _, err := os.Stat(configFile); err != nil {
-		logrus.WithField("path", configFile).WithError(err).Fatal("Could not find config file")
-	}
-	logrus.Infof("Using config file: %s", configFile)
-	config, err := ioutil.ReadFile(configFile)
-	c := AppConfig{}
-	err = yaml.Unmarshal([]byte(config), &c)
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	// Load AppConfig
+	// TODO make config path configurable via env var directly
+	c := loadConfig(fmt.Sprintf("conf/%s.yaml", os.Getenv("ENV")))
 
-	dbInfo := fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable", c.DBUser, c.DBName, c.DBHost)
-	if c.DBPassword != "" {
-		dbInfo = fmt.Sprintf("password=%s %s", c.DBPassword, dbInfo)
-	}
-	ppdb, err = sql.Open("postgres", dbInfo)
-	if err != nil {
-		logrus.Fatal(err.Error())
-	}
-	ppdb.SetMaxIdleConns(100)
-	err = ppdb.Ping()
-	if err != nil {
-		logrus.Fatal(err.Error())
-	}
+	// Set up the database
+	ppdb := db.New(c.dbConfig)
 	defer ppdb.Close()
 
-	cookieStore = sessions.NewCookieStore([]byte(c.CookieKey))
+	cookieStore = sessions.NewCookieStore([]byte(c.cookieKey))
 	gob.Register(map[string]interface{}{})
 
-	// Generate templateMap from our 'templates' and 'layouts' directories
-	templates, err := filepath.Glob("public/templates/*.tmpl")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	layouts, err := filepath.Glob("public/layouts/*.tmpl")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	for _, tmpl := range templates {
-		files := append(layouts, tmpl)
-		templateMap[filepath.Base(tmpl)] = template.Must(template.ParseFiles(files...))
+	// Populate templateMap by processing the 'templates' and 'layouts' directories.
+	loadTemplates()
+
+	// Create App object
+	app := App{
+		db: ppdb,
 	}
 
 	// Set up routes
 	r := mux.NewRouter()
 	// Handle authentication.
 	r.HandleFunc("/callback", CallbackHandler)
-	r.HandleFunc("/login", LoginGET)
+	r.HandleFunc("/login", app.LoginGET)
 	// Handle app routes.
-	r.HandleFunc("/", IndexGET)
-	r.HandleFunc("/create", CreateGET).Methods("GET")
-	r.HandleFunc("/create", CreatePOST).Methods("POST")
-	r.HandleFunc("/events", EventsGET)
-	r.HandleFunc("/events/{id}", EventGET).Methods("GET")
+	r.HandleFunc("/", app.IndexGET)
+	r.HandleFunc("/create", app.CreateGET).Methods("GET")
+	r.HandleFunc("/create", app.CreatePOST).Methods("POST")
+	r.HandleFunc("/events", app.EventsGET)
+	r.HandleFunc("/events/{id}", app.EventGET).Methods("GET")
 
 	// Set up middleware stack
 	n := negroni.New(
@@ -128,4 +103,41 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, filename string, dat
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+// loadTemplates generates a map of template file name to complete templates.
+// If any failures occur when compiling the templates, a fatal error will be logged.
+func loadTemplates() {
+	templates, err := filepath.Glob("public/templates/*.tmpl")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	layouts, err := filepath.Glob("public/layouts/*.tmpl")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	for _, tmpl := range templates {
+		files := append(layouts, tmpl)
+		templateMap[filepath.Base(tmpl)] = template.Must(template.ParseFiles(files...))
+	}
+}
+
+// loadConfig extracts the configuration file into an AppConfig object.
+func loadConfig(path string) *AppConfig {
+	if _, err := os.Stat(path); err != nil {
+		logrus.WithField("path", path).WithError(err).Fatal("Could not find config file")
+	}
+	logrus.Infof("Using config file at: %s", path)
+	config, err := ioutil.ReadFile(path)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	c := &AppConfig{}
+	err = yaml.Unmarshal([]byte(config), c)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	return c
 }
