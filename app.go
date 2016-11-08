@@ -26,8 +26,6 @@ import (
 var templateMap = make(map[string]*template.Template)
 var cookieStore *sessions.CookieStore
 var ppdb *sql.DB
-var dateTimeFormat = "2006-01-02 15:04"
-var niceFormat = "Jan 02, 2006"
 
 // AppConfig is a container for all app configuration parameters
 // that are to be extracted from the YAML config file.
@@ -102,7 +100,7 @@ func main() {
 	r.HandleFunc("/create", CreateGET).Methods("GET")
 	r.HandleFunc("/create", CreatePOST).Methods("POST")
 	r.HandleFunc("/events", EventsGET)
-	r.HandleFunc("/event/{id}", EventGET).Methods("GET")
+	r.HandleFunc("/events/{id}", EventGET).Methods("GET")
 
 	// Set up middleware stack
 	n := negroni.New(
@@ -133,6 +131,7 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, filename string, dat
 	}
 }
 
+// GetUserID returns the ID for a given user.
 func GetUserID(r *http.Request) (int, error) {
 	session, err := cookieStore.Get(r, "auth-session")
 	if err != nil {

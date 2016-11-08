@@ -1,14 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
-	"fmt"
 	"time"
-	"github.com/gorilla/mux"
+
 	"github.com/Sirupsen/logrus"
+	"github.com/gorilla/mux"
 )
+
+var humanDateFormat = "Jan 02, 2006"
 
 // IndexGET handles GET requests for '/'
 func IndexGET(w http.ResponseWriter, r *http.Request) {
@@ -67,25 +70,26 @@ func CreatePOST(w http.ResponseWriter, r *http.Request) {
 	logrus.Info(id)
 
 	r.ParseForm()
-    title := r.Form["title"][0]
-    eventType := r.Form["event_type"][0]
-    eventTopic := r.Form["event_topic"][0]
-    description := r.Form["description"][0]
-    location := r.Form["location"][0]
-    startDate := r.Form["start_date"][0]
-    endDate := r.Form["end_date"][0]
-    startTime := r.Form["start_time"][0]
-    endTime := r.Form["end_time"][0]
-    logrus.Info(r.Form)
+	title := r.Form["title"][0]
+	eventType := r.Form["event_type"][0]
+	eventTopic := r.Form["event_topic"][0]
+	description := r.Form["description"][0]
+	location := r.Form["location"][0]
+	startDate := r.Form["start_date"][0]
+	endDate := r.Form["end_date"][0]
+	startTime := r.Form["start_time"][0]
+	endTime := r.Form["end_time"][0]
+	logrus.Info(r.Form)
 
-    startTimeDate, err := time.Parse(dateTimeFormat, fmt.Sprintf("%s %s", startDate, startTime))
-    if err != nil {
-    	logrus.WithError(err).Error("Failed to parse date time")
-    }
-    endTimeDate, err := time.Parse(dateTimeFormat, fmt.Sprintf("%s %s", endDate, endTime))
-    if err != nil {
-    	logrus.WithError(err).Error("Failed to parse date time")
-    }
+	var dateTimeFormat = "2006-01-02 15:04"
+	startTimeDate, err := time.Parse(dateTimeFormat, fmt.Sprintf("%s %s", startDate, startTime))
+	if err != nil {
+		logrus.WithError(err).Error("Failed to parse date time")
+	}
+	endTimeDate, err := time.Parse(dateTimeFormat, fmt.Sprintf("%s %s", endDate, endTime))
+	if err != nil {
+		logrus.WithError(err).Error("Failed to parse date time")
+	}
 
 	// TODO verify that answerA does not equal answerB
 	query := `INSERT INTO event (
@@ -110,10 +114,11 @@ func CreatePOST(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// Event contains the metadata related to an activism event.
 type Event struct {
-	Title string
-	Timestamp string 
-	ID int
+	ID        int
+	Title     string
+	Timestamp string
 }
 
 // EventsGET handles GET requests for '/events'
@@ -134,20 +139,20 @@ func EventsGET(w http.ResponseWriter, r *http.Request) {
 			logrus.Error(err)
 		}
 		eventsMap = append(eventsMap, Event{
-			Title: title,
-			Timestamp: startTS.Format(niceFormat),
-			ID: id,
+			Title:     title,
+			Timestamp: startTS.Format(humanDateFormat),
+			ID:        id,
 		})
 	}
 
 	data := map[string]interface{}{
-		"Page": "Events",
+		"Page":   "Events",
 		"Events": eventsMap,
 	}
 	renderTemplate(w, r, "events.tmpl", data)
 }
 
-
+// EventGET handles GET requests for /events/{id}.
 func EventGET(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -161,17 +166,17 @@ func EventGET(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.Error(err)
 	}
-	startTime := start.Format(niceFormat)
-	endTime := end.Format(niceFormat)
-	
+	startTime := start.Format(humanDateFormat)
+	endTime := end.Format(humanDateFormat)
+
 	data := map[string]interface{}{
-		"Page": "Events",
-		"Title": title,
-		"Start": startTime,
-		"End": endTime,
-		"Desc": desc,
-		"Type": eventType,
-		"Topic": topic,
+		"Page":     "Events",
+		"Title":    title,
+		"Start":    startTime,
+		"End":      endTime,
+		"Desc":     desc,
+		"Type":     eventType,
+		"Topic":    topic,
 		"Location": location,
 	}
 	renderTemplate(w, r, "event.tmpl", data)
