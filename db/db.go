@@ -14,18 +14,25 @@ type Database struct {
 
 // Config contains database connection parameters.
 type Config struct {
-	host     string `yaml:"db_host"`
-	name     string `yaml:"db_name"`
-	user     string `yaml:"db_user"`
-	password string `yaml:"db_password"`
+	Host     string `yaml:"db_host"`
+	Name     string `yaml:"db_name"`
+	User     string `yaml:"db_user"`
+	Password string `yaml:"db_password"`
 }
 
 // New takes a database configuration and returns a Database object, but any error
 // during the initialization process will be deemed fatal.
-func New(c *Config) *Database {
-	dbInfo := fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable", c.user, c.name, c.host)
-	if c.password != "" {
-		dbInfo = fmt.Sprintf("password=%s %s", c.password, dbInfo)
+func New(c Config) *Database {
+	if c.User == "" || c.Name == "" || c.Host == "" {
+		logrus.WithFields(logrus.Fields{
+			"host": c.Host,
+			"name": c.Name,
+			"user": c.User,
+		}).Fatal("Missing DB configurations parameters")
+	}
+	dbInfo := fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable", c.User, c.Name, c.Host)
+	if c.Password != "" {
+		dbInfo = fmt.Sprintf("password=%s %s", c.Password, dbInfo)
 	}
 
 	ppdb, err := sql.Open("postgres", dbInfo)

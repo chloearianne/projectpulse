@@ -13,11 +13,18 @@ go install ./...
 
 # Start database and run schema
 pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start
-psql -h localhost -d postgres -f sql/schema.sql
-psql -U ppmaster -h localhost -d ppdb -f sql/test_data.sql
+
+# Avoid re-running schema
+no_schema_opt="-s"
+if [ "$1" == $no_schema_opt ]; then
+    printf "\nNOTE: resetting DB schema and data\n"
+    psql -h localhost -d postgres -f sql/schema.sql
+    psql -U ppmaster -h localhost -d ppdb -f sql/test_data.sql
+    printf "\nRun without '${no_schema_opt}' to avoid this reset\n\n"
+fi
 
 # Timed start on separate thread
-echo "Opening in default browser..." && sleep 1 && open http://localhost:${PORT} &
+printf "\nOpening in default browser...\n" && sleep 1 && open http://localhost:${PORT} &
 
-echo "Starting server on port ${PORT}"
+printf "\nStarting server on port ${PORT}"
 go build && ./protestpulse

@@ -1,10 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-	"html/template"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -29,19 +28,7 @@ func (a *App) IndexGET(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "index.tmpl", data)
 }
 
-// LoginGET handles GET requests for '/login'.
-func (a *App) LoginGET(w http.ResponseWriter, r *http.Request) {
-	data := map[string]interface{}{
-		"Page":              "Login",
-		"Auth0ClientId":     os.Getenv("AUTH0_CLIENT_ID"),
-		"Auth0ClientSecret": os.Getenv("AUTH0_CLIENT_SECRET"),
-		"Auth0Domain":       os.Getenv("AUTH0_DOMAIN"),
-		"Auth0CallbackURL":  template.URL(os.Getenv("AUTH0_CALLBACK_URL")),
-	}
-	renderTemplate(w, r, "login.tmpl", data)
-}
-
-// CreateGET handles GET requests for '/create'
+// CreateGET handles GET requests for '/create'.
 func (a *App) CreateGET(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Page": "Create Event",
@@ -53,11 +40,15 @@ func (a *App) CreateGET(w http.ResponseWriter, r *http.Request) {
 func (a *App) CreatePOST(w http.ResponseWriter, r *http.Request) {
 	p, err := session.GetProfile(r, cookieStore)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		// FIXME logout, clear session, and redirect to login
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
 	}
 	userID, err := a.db.GetUserID(p.Email)
 	if err != nil {
-		logrus.WithError(err).Error("User ID not found")
+		if err == sql.ErrNoRows {
+			logrus.WithError(err).Error("User ID not found")
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

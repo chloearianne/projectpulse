@@ -14,6 +14,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/chloearianne/protestpulse/db"
+	"github.com/chloearianne/protestpulse/session"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -27,6 +28,7 @@ var cookieStore *sessions.CookieStore
 
 // var ppdb *sql.DB
 
+// App bundles resources used by the application.
 type App struct {
 	db *db.Database
 }
@@ -34,8 +36,8 @@ type App struct {
 // AppConfig is a container for all app configuration parameters
 // that are to be extracted from the YAML config file.
 type AppConfig struct {
-	cookieKey string `yaml:"cookie_key"`
-	dbConfig  *db.Config
+	CookieKey string    `yaml:"cookie_key"`
+	DBConfig  db.Config `yaml:"db_config"`
 }
 
 func main() {
@@ -50,11 +52,13 @@ func main() {
 	c := loadConfig(fmt.Sprintf("conf/%s.yaml", os.Getenv("ENV")))
 
 	// Set up the database
-	ppdb := db.New(c.dbConfig)
+	ppdb := db.New(c.DBConfig)
 	defer ppdb.Close()
 
-	cookieStore = sessions.NewCookieStore([]byte(c.cookieKey))
+	cookieStore = sessions.NewCookieStore([]byte(c.CookieKey))
+	// Register types to be stored on session
 	gob.Register(map[string]interface{}{})
+	gob.Register(&session.Profile{})
 
 	// Populate templateMap by processing the 'templates' and 'layouts' directories.
 	loadTemplates()
@@ -67,8 +71,9 @@ func main() {
 	// Set up routes
 	r := mux.NewRouter()
 	// Handle authentication.
-	r.HandleFunc("/callback", CallbackHandler)
-	r.HandleFunc("/login", app.LoginGET)
+	r.HandleFunc("/auth/logout", LogoutHandler)
+	r.HandleFunc("/auth/login", LoginHandler)
+	r.HandleFunc("/auth/callback", CallbackHandler)
 	// Handle app routes.
 	r.HandleFunc("/", app.IndexGET)
 	r.HandleFunc("/create", app.CreateGET).Methods("GET")
@@ -127,7 +132,7 @@ func loadConfig(path string) *AppConfig {
 	if _, err := os.Stat(path); err != nil {
 		logrus.WithField("path", path).WithError(err).Fatal("Could not find config file")
 	}
-	logrus.Infof("Using config file at: %s", path)
+	logrus.Infof("Using config file at %q", path)
 	config, err := ioutil.ReadFile(path)
 	if err != nil {
 		logrus.Fatal(err)
