@@ -45,8 +45,7 @@ func main() {
 	}
 
 	// Load AppConfig
-	// TODO make config path configurable via env var directly
-	c := loadConfig(fmt.Sprintf("conf/%s.yaml", os.Getenv("ENV")))
+	c := loadConfig(fmt.Sprintf(os.Getenv("CONFIG_PATH")))
 
 	// Set up the database
 	ppdb := db.New(c.DBConfig)
