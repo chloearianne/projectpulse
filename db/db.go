@@ -78,3 +78,9 @@ func (db *Database) GetUserID(email string) (int, error) {
 	}
 	return userID, nil
 }
+
+// GetMyEvents returns the events that the user has marked.
+func (db *Database) GetMyEvents(email string) (int, error) {
+	//TODO
+	return 0, nil
+}

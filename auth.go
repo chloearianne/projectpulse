@@ -18,8 +18,8 @@ import (
 )
 
 // IsAuthenticated is middleware that checks to see whether the user is logged in.
-func IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	session, err := cookieStore.Get(r, "auth-session")
+func (a *App) IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	session, err := a.cookieStore.Get(r, "auth-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -42,7 +42,7 @@ func IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.HandlerFu
 }
 
 // LoginHandler handles requests for '/auth/login'.
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Page":              "Login",
 		"Auth0ClientId":     os.Getenv("AUTH0_CLIENT_ID"),
@@ -50,13 +50,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		"Auth0Domain":       os.Getenv("AUTH0_DOMAIN"),
 		"Auth0CallbackURL":  template.URL(os.Getenv("AUTH0_CALLBACK_URL")),
 	}
-	renderTemplate(w, r, "login.tmpl", data)
+	a.renderTemplate(w, r, "login.tmpl", data)
 }
 
 // LogoutHandler handles requests for '/auth/logout' by logging
 // the user out from Auth0, clearing the session, and redirecting to login.
-func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := cookieStore.Get(r, "auth-session")
+func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, err := a.cookieStore.Get(r, "auth-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -132,7 +132,7 @@ func (a *App) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := cookieStore.Get(r, "auth-session")
+	session, err := a.cookieStore.Get(r, "auth-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

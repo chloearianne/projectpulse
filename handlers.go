@@ -15,7 +15,7 @@ var humanDateFormat = "Jan 02, 2006"
 
 // IndexGET handles GET requests for '/'.
 func (a *App) IndexGET(w http.ResponseWriter, r *http.Request) {
-	session, err := cookieStore.Get(r, "auth-session")
+	session, err := a.cookieStore.Get(r, "auth-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -25,7 +25,7 @@ func (a *App) IndexGET(w http.ResponseWriter, r *http.Request) {
 		"Page":    "Home",
 		"Profile": session.Values["profile"],
 	}
-	renderTemplate(w, r, "index.tmpl", data)
+	a.renderTemplate(w, r, "index.tmpl", data)
 }
 
 // CreateGET handles GET requests for '/create'.
@@ -33,12 +33,12 @@ func (a *App) CreateGET(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Page": "Create Event",
 	}
-	renderTemplate(w, r, "create.tmpl", data)
+	a.renderTemplate(w, r, "create.tmpl", data)
 }
 
 // CreatePOST handles POST requests for '/create'.
 func (a *App) CreatePOST(w http.ResponseWriter, r *http.Request) {
-	p, err := session.GetProfile(r, cookieStore)
+	p, err := session.GetProfile(r, a.cookieStore)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
@@ -123,7 +123,7 @@ func (a *App) EventsGET(w http.ResponseWriter, r *http.Request) {
 		"Page":   "Events",
 		"Events": eventsMap,
 	}
-	renderTemplate(w, r, "events.tmpl", data)
+	a.renderTemplate(w, r, "events.tmpl", data)
 }
 
 // EventGET handles GET requests for a single event at '/events/{id}'.
@@ -160,5 +160,5 @@ func (a *App) EventGET(w http.ResponseWriter, r *http.Request) {
 		"Topic":    topic,
 		"Location": location,
 	}
-	renderTemplate(w, r, "event.tmpl", data)
+	a.renderTemplate(w, r, "event.tmpl", data)
 }
