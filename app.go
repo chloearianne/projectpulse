@@ -73,7 +73,7 @@ func main() {
 	// Handle authentication.
 	r.HandleFunc("/auth/logout", LogoutHandler)
 	r.HandleFunc("/auth/login", LoginHandler)
-	r.HandleFunc("/auth/callback", CallbackHandler)
+	r.HandleFunc("/auth/callback", app.CallbackHandler)
 	// Handle app routes.
 	r.HandleFunc("/", app.IndexGET)
 	r.HandleFunc("/create", app.CreateGET).Methods("GET")

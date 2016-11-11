@@ -90,7 +90,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // CallbackHandler will be called by Auth0 once it redirects to the app.
-func CallbackHandler(w http.ResponseWriter, r *http.Request) {
+func (a *App) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 	domain := os.Getenv("AUTH0_DOMAIN")
 
 	conf := &oauth2.Config{
@@ -99,8 +99,8 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 		RedirectURL:  os.Getenv("AUTH0_CALLBACK_URL"),
 		Scopes:       []string{"openid", "profile"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://" + domain + "/authorize",
-			TokenURL: "https://" + domain + "/oauth/token",
+			AuthURL:  fmt.Sprintf("https://%s/authorize", domain),
+			TokenURL: fmt.Sprintf("https://%s/oauth/token", domain),
 		},
 	}
 
@@ -113,7 +113,7 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Now getting the userinfo
 	client := conf.Client(oauth2.NoContext, token)
-	resp, err := client.Get("https://" + domain + "/userinfo")
+	resp, err := client.Get(fmt.Sprintf("https://%s/userinfo", domain))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

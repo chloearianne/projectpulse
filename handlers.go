@@ -40,7 +40,6 @@ func (a *App) CreateGET(w http.ResponseWriter, r *http.Request) {
 func (a *App) CreatePOST(w http.ResponseWriter, r *http.Request) {
 	p, err := session.GetProfile(r, cookieStore)
 	if err != nil {
-		// FIXME logout, clear session, and redirect to login
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}

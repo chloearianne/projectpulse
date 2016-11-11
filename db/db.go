@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/chloearianne/protestpulse/session"
 )
 
 // Database is a wrapper for the app database connection.
@@ -50,7 +51,7 @@ func New(c Config) *Database {
 
 // CreateUser uses the given session profile to create a user record
 // and returns the newly created user's ID.
-func (db *Database) CreateUser(email, password, fname, lname string) (int, error) {
+func (db *Database) CreateUser(p *session.Profile, password string) (int, error) {
 	query := `INSERT INTO account (
 				email, password, first_name, last_name
 			) VALUES (
@@ -58,7 +59,7 @@ func (db *Database) CreateUser(email, password, fname, lname string) (int, error
 			) RETURNING id`
 
 	var userID int
-	err := db.QueryRow(query, email, password, fname, lname).Scan(&userID)
+	err := db.QueryRow(query, p.Email, password, p.GivenName, p.FamilyName).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
