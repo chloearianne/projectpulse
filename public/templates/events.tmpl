@@ -1,12 +1,13 @@
 {{ define "content" }}
 <div class="header">
   <h2>Upcoming Events</h2>
-</div><hr />
+</div>
+<hr>
 <div class="row">
   <div class="col-md-8 col-xs-12 main-content">
     <div class="container">
       {{ range $e := .Events }}
-        <a href="/event/{{ $e.ID }}">
+        <a href="/events/{{ $e.ID }}">
           <div class="col-md-4 event">
             <h3>{{ $e.Title }}</h3>
             <h4>{{ $e.Timestamp }}</h4>

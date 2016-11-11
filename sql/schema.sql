@@ -13,15 +13,6 @@ GRANT ALL PRIVILEGES ON DATABASE ppdb TO ppmaster;
 -- Connect to newly created database
 \c ppdb ppmaster;
 
-CREATE TABLE account (
-    id SERIAL PRIMARY KEY,
-    email varchar NOT NULL,
-    password varchar NOT NULL,
-    first_name varchar NOT NULL,
-    last_name varchar NOT NULL,
-    CONSTRAINT uniq_voter_email UNIQUE(email)
-);
-
 CREATE TABLE event_type (
     id    SERIAL PRIMARY KEY,
     name  varchar,
@@ -51,6 +42,7 @@ INSERT INTO event_topic (name) VALUES
 
 CREATE TABLE event (
     id               SERIAL PRIMARY KEY,
+    -- creator_id is the oauth given id for the user that created this event
     creator_id       integer REFERENCES account ON DELETE CASCADE,
     title            varchar,
     start_timestamp  timestamp,
@@ -59,23 +51,27 @@ CREATE TABLE event (
     event_type       integer REFERENCES event_type ON DELETE CASCADE,
     event_topic      integer REFERENCES event_topic ON DELETE CASCADE,
     location         varchar,
-    stars            integer
+    -- user_count acts as a cached count for the number of users who have this event marked
+    user_count       integer
 );
 
-CREATE TABLE account_event_topics (
-    account_id       integer REFERENCES account ON DELETE CASCADE,
-    topic_id      integer REFERENCES event_topic ON DELETE CASCADE,
-    PRIMARY KEY(account_id, topic_id)
+CREATE TABLE user_event_topics (
+    -- user_id is the oauth given id for the user associated with this topic
+    user_id   integer REFERENCES account ON DELETE CASCADE,
+    topic_id  integer REFERENCES event_topic ON DELETE CASCADE,
+    PRIMARY KEY(user_id, topic_id)
 );
 
-CREATE TABLE account_event_type (
-    account_id       integer REFERENCES account ON DELETE CASCADE,
-    type_id       integer REFERENCES event_type ON DELETE CASCADE,
-    PRIMARY KEY(account_id, type_id)
+CREATE TABLE user_event_types (
+    -- user_id is the oauth given id for the user associated with this type
+    user_id   integer REFERENCES account ON DELETE CASCADE,
+    type_id   integer REFERENCES event_type ON DELETE CASCADE,
+    PRIMARY KEY(user_id, type_id)
 );
 
-CREATE TABLE account_star (
-    account_id   integer REFERENCES account ON DELETE CASCADE,
+CREATE TABLE user_events (
+    -- user_id is the oauth given id for the user associated with this event
+    user_id   integer REFERENCES account ON DELETE CASCADE,
     event_id  integer REFERENCES event ON DELETE CASCADE,
-    PRIMARY KEY(account_id, event_id)
+    PRIMARY KEY(user_id, event_id)
 );
