@@ -43,7 +43,7 @@ INSERT INTO event_topic (name) VALUES
 CREATE TABLE event (
     id               SERIAL PRIMARY KEY,
     -- creator_id is the oauth given id for the user that created this event
-    creator_id       integer REFERENCES account ON DELETE CASCADE,
+    creator_id       varchar,
     title            varchar,
     start_timestamp  timestamp,
     end_timestamp    timestamp,
@@ -57,21 +57,21 @@ CREATE TABLE event (
 
 CREATE TABLE user_event_topics (
     -- user_id is the oauth given id for the user associated with this topic
-    user_id   integer REFERENCES account ON DELETE CASCADE,
+    user_id   varchar,
     topic_id  integer REFERENCES event_topic ON DELETE CASCADE,
     PRIMARY KEY(user_id, topic_id)
 );
 
 CREATE TABLE user_event_types (
     -- user_id is the oauth given id for the user associated with this type
-    user_id   integer REFERENCES account ON DELETE CASCADE,
+    user_id   varchar,
     type_id   integer REFERENCES event_type ON DELETE CASCADE,
     PRIMARY KEY(user_id, type_id)
 );
 
 CREATE TABLE user_events (
     -- user_id is the oauth given id for the user associated with this event
-    user_id   integer REFERENCES account ON DELETE CASCADE,
+    user_id   varchar,
     event_id  integer REFERENCES event ON DELETE CASCADE,
     PRIMARY KEY(user_id, event_id)
 );

@@ -26,16 +26,19 @@ func (a *App) IsAuthenticated(w http.ResponseWriter, r *http.Request, next http.
 	}
 
 	if _, ok := session.Values["profile"]; !ok {
+		a.loginState = false
 		// Only redirect if not currently requesting an /auth/ route or any
 		// static assets to avoid an endless loop or blocking static resources.
 		if !strings.Contains(r.URL.Path, "/auth/") && !strings.Contains(r.URL.Path, "/static/") {
 			loginPath := "/auth/login"
 			logrus.WithField("requestURL", r.URL.Path).Infof("Redirecting to %s", loginPath)
-			// FIXME - last thing seen is /callback so we need to pass the path forward to deep link
+			// TODO - last thing seen is /callback so we need to pass the path forward to deep link
 			// http.Redirect(w, r, fmt.Sprintf("/auth/login?redir=%s", r.URL.Path), http.StatusSeeOther)
 			http.Redirect(w, r, loginPath, http.StatusSeeOther)
 			return
 		}
+	} else {
+		a.loginState = true
 	}
 
 	next(w, r)
@@ -126,7 +129,7 @@ func (a *App) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var profile session.Profile
+	var profile *session.Profile
 	if err = json.Unmarshal(raw, &profile); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

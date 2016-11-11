@@ -28,6 +28,7 @@ type App struct {
 	db          *db.Database
 	templateMap map[string]*template.Template
 	cookieStore *sessions.CookieStore
+	loginState  bool
 }
 
 // AppConfig is a container for all app configuration parameters
@@ -69,10 +70,9 @@ func main() {
 	r.HandleFunc("/auth/login", app.LoginHandler)
 	r.HandleFunc("/auth/callback", app.CallbackHandler)
 	// Handle app routes.
-	r.HandleFunc("/", app.IndexGET)
-	r.HandleFunc("/create", app.CreateGET).Methods("GET")
-	r.HandleFunc("/create", app.CreatePOST).Methods("POST")
-	r.HandleFunc("/events", app.EventsGET)
+	r.HandleFunc("/", app.IndexGET).Methods("GET")
+	r.HandleFunc("/events", app.EventsGET).Methods("GET")
+	r.HandleFunc("/events", app.EventsPOST).Methods("POST")
 	r.HandleFunc("/events/{id}", app.EventGET).Methods("GET")
 
 	// Set up middleware stack
@@ -94,6 +94,9 @@ func (a *App) renderTemplate(w http.ResponseWriter, r *http.Request, filename st
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Add loginState to data
+	data["LoggedIn"] = a.loginState
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err := tmpl.ExecuteTemplate(w, "base", data)

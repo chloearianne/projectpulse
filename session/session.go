@@ -28,17 +28,9 @@ func GetProfile(r *http.Request, cookie *sessions.CookieStore) (*Profile, error)
 		return nil, fmt.Errorf("Could not find profile in session")
 	}
 
-	profile, ok := session.Values["profile"].(Profile)
+	p, ok := session.Values["profile"].(*Profile)
 	if !ok {
 		return nil, fmt.Errorf("Could not assert profile")
-	}
-
-	p := &Profile{
-		UserID:     profile.UserID,
-		Email:      profile.Email,
-		GivenName:  profile.GivenName,
-		FamilyName: profile.FamilyName,
-		Picture:    profile.Picture,
 	}
 
 	return p, nil

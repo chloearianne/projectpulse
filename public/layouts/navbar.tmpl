@@ -4,11 +4,13 @@
     <li class="{{ if eq .Page "Events" }}active{{ end }}">
       <a href="/events"><span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>&nbsp;Events</a>
     </li>
+    {{ if .LoggedIn }}
     <li> <!-- Trigger for new event modal -->
       <a href="#" data-toggle="modal" data-target="#eventModal">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Create Event
       </a>
     </li>
+    {{ end }}
     <li class="{{ if eq .Page "Logout" }}active{{ end }}">
       <a href="/auth/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout</a>
     </li>

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"time"
@@ -15,40 +14,24 @@ var humanDateFormat = "Jan 02, 2006"
 
 // IndexGET handles GET requests for '/'.
 func (a *App) IndexGET(w http.ResponseWriter, r *http.Request) {
-	session, err := a.cookieStore.Get(r, "auth-session")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	data := map[string]interface{}{
-		"Page":    "Home",
-		"Profile": session.Values["profile"],
-	}
-	a.renderTemplate(w, r, "index.tmpl", data)
-}
-
-// CreateGET handles GET requests for '/create'.
-func (a *App) CreateGET(w http.ResponseWriter, r *http.Request) {
-	data := map[string]interface{}{
-		"Page": "Create Event",
-	}
-	a.renderTemplate(w, r, "create.tmpl", data)
-}
-
-// CreatePOST handles POST requests for '/create'.
-func (a *App) CreatePOST(w http.ResponseWriter, r *http.Request) {
 	p, err := session.GetProfile(r, a.cookieStore)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	userID, err := a.db.GetUserID(p.Email)
+
+	data := map[string]interface{}{
+		"Page":    "Home",
+		"Profile": p,
+	}
+	a.renderTemplate(w, r, "index.tmpl", data)
+}
+
+// EventsPOST handles POST requests for '/events'.
+func (a *App) EventsPOST(w http.ResponseWriter, r *http.Request) {
+	p, err := session.GetProfile(r, a.cookieStore)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			logrus.WithError(err).Error("User ID not found")
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -68,7 +51,7 @@ func (a *App) CreatePOST(w http.ResponseWriter, r *http.Request) {
 	query := `INSERT INTO event (
 		        creator_id, title, start_timestamp,
 		        end_timestamp, description, event_topic,
-		        event_type, location, stars
+		        event_type, location, user_count
 			  )
 			  VALUES (
 			  	$1, $2, $3,
@@ -76,7 +59,7 @@ func (a *App) CreatePOST(w http.ResponseWriter, r *http.Request) {
 			  	$7, $8, $9
 			  )`
 	_, err = a.db.Exec(query,
-		userID, r.FormValue("title"), startTS,
+		p.UserID, r.FormValue("title"), startTS,
 		endTS, r.FormValue("description"), r.FormValue("event_topic"),
 		r.FormValue("event_type"), r.FormValue("location"), 0,
 	)
@@ -97,8 +80,17 @@ type Event struct {
 
 // EventsGET handles GET requests for '/events'.
 func (a *App) EventsGET(w http.ResponseWriter, r *http.Request) {
-	query := `SELECT id, title, start_timestamp FROM event`
-	rows, err := a.db.Query(query)
+	p, err := session.GetProfile(r, a.cookieStore)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	query := `SELECT
+				id, title, start_timestamp
+			FROM event
+			WHERE creator_id = $1`
+	rows, err := a.db.Query(query, p.UserID)
 	if err != nil {
 		logrus.Error(err)
 	}
